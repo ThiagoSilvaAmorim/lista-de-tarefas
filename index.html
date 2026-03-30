@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lista de Tarefas</title>
+
+  <style>
+    /* Reset básico */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f2f5;
+      color: #333;
+      padding: 20px;
+    }
+
+    /* Cabeçalho da página */
+    header {
+      background-color: #4a90d9;
+      color: white;
+      padding: 20px;
+      text-align: center;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+
+    header h1 {
+      font-size: 26px;
+    }
+
+    /* Área principal */
+    main {
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    /* Seção do formulário de cadastro */
+    section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+
+    section h2 {
+      margin-bottom: 15px;
+      font-size: 18px;
+      color: #4a90d9;
+    }
+
+    /* Estilos dos campos do formulário */
+    label {
+      display: block;
+      margin-top: 10px;
+      margin-bottom: 4px;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    input[type="text"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+    }
+
+    textarea {
+      resize: vertical;
+      height: 70px;
+    }
+
+    /* Botão de cadastrar */
+    button {
+      margin-top: 15px;
+      padding: 10px 20px;
+      background-color: #4a90d9;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #357abd;
+    }
+
+    /* Campo de busca */
+    #campoBusca {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+
+    /* Mensagem quando não há tarefas */
+    #mensagemVazia {
+      text-align: center;
+      color: #999;
+      margin-top: 10px;
+      font-style: italic;
+    }
+
+    /* Card de cada tarefa */
+    .tarefa {
+      background-color: #fff;
+      border-left: 5px solid #4a90d9;
+      padding: 12px 15px;
+      margin-bottom: 12px;
+      border-radius: 5px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+    }
+
+    /* Cor da borda muda de acordo com a prioridade */
+    .tarefa.alta   { border-left-color: #e74c3c; }
+    .tarefa.media  { border-left-color: #f39c12; }
+    .tarefa.baixa  { border-left-color: #2ecc71; }
+
+    /* Título da tarefa */
+    .tarefa h3 {
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+
+    /* Texto riscado quando concluída */
+    .tarefa.concluida h3 {
+      text-decoration: line-through;
+      color: #aaa;
+    }
+
+    .tarefa p {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 4px;
+    }
+
+    /* Área dos botões de cada tarefa */
+    .acoes {
+      margin-top: 8px;
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .acoes button {
+      margin-top: 0;
+      padding: 5px 12px;
+      font-size: 13px;
+    }
+
+    /* Cores dos botões de ação */
+    .btn-concluir   { background-color: #2ecc71; }
+    .btn-concluir:hover { background-color: #27ae60; }
+
+    .btn-editar     { background-color: #f39c12; }
+    .btn-editar:hover { background-color: #d68910; }
+
+    .btn-excluir    { background-color: #e74c3c; }
+    .btn-excluir:hover { background-color: #c0392b; }
+
+    /* Rodapé */
+    footer {
+      text-align: center;
+      margin-top: 30px;
+      font-size: 13px;
+      color: #aaa;
+    }
+
+    /* Responsividade para telas menores */
+    @media (max-width: 500px) {
+      header h1 {
+        font-size: 20px;
+      }
+
+      .acoes {
+        flex-direction: column;
+      }
+
+      .acoes button {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- Cabeçalho da aplicação -->
+  <header>
+    <h1>📝 Lista de Tarefas</h1>
+  </header>
+
+  <main>
+
+    <!-- Seção de cadastro de nova tarefa -->
+    <section>
+      <h2>Cadastrar nova tarefa</h2>
+
+      <label for="titulo">Título da tarefa:</label>
+      <input type="text" id="titulo" placeholder="Ex: Estudar para a prova">
+
+      <label for="descricao">Descrição:</label>
+      <textarea id="descricao" placeholder="Descreva a tarefa..."></textarea>
+
+      <label for="prioridade">Prioridade:</label>
+      <select id="prioridade">
+        <option value="baixa">Baixa</option>
+        <option value="media">Média</option>
+        <option value="alta">Alta</option>
+      </select>
+
+      <button onclick="cadastrarTarefa()">Adicionar tarefa</button>
+    </section>
+
+    <!-- Seção de busca e listagem de tarefas -->
+    <section>
+      <h2>Minhas tarefas</h2>
+
+      <label for="campoBusca">Buscar por título:</label>
+      <input type="text" id="campoBusca" placeholder="Digite para buscar..." oninput="buscarTarefas()">
+
+      <!-- As tarefas serão inseridas aqui pelo JavaScript -->
+      <div id="listaTarefas"></div>
+      <p id="mensagemVazia">Nenhuma tarefa cadastrada ainda.</p>
+    </section>
+
+  </main>
+
+  <!-- Rodapé -->
+  <footer>
+    <p>Sistema de Lista de Tarefas — Fundamentos de Programação Web</p>
+    <p>Thiago Amorim — RU: 5455805</p>
+  </footer>
+
+  <script>
+    // Carrega as tarefas salvas no LocalStorage ao abrir a página
+    let tarefas = JSON.parse(localStorage.getItem('tarefas')) || [];
+
+    // Mostra as tarefas na tela ao carregar
+    renderizarTarefas();
+
+    // Função para cadastrar uma nova tarefa
+    function cadastrarTarefa() {
+      // Pega os valores dos campos
+      var titulo     = document.querySelector('#titulo').value.trim();
+      var descricao  = document.querySelector('#descricao').value.trim();
+      var prioridade = document.querySelector('#prioridade').value;
+
+      // Validação: não permite tarefa sem título
+      if (titulo === '') {
+        alert('Por favor, informe o título da tarefa.');
+        return;
+      }
+
+      // Cria o objeto da tarefa
+      var novaTarefa = {
+        id: Date.now(),
+        titulo: titulo,
+        descricao: descricao,
+        prioridade: prioridade,
+        status: 'pendente',
+        dataCriacao: new Date().toLocaleDateString('pt-BR')
+      };
+
+      // Adiciona ao array e salva no LocalStorage
+      tarefas.push(novaTarefa);
+      salvarNoLocalStorage();
+
+      // Limpa os campos do formulário
+      document.querySelector('#titulo').value    = '';
+      document.querySelector('#descricao').value = '';
+      document.querySelector('#prioridade').value = 'baixa';
+
+      // Atualiza a lista na tela
+      renderizarTarefas();
+    }
+
+    // Função para salvar o array de tarefas no LocalStorage
+    function salvarNoLocalStorage() {
+      localStorage.setItem('tarefas', JSON.stringify(tarefas));
+    }
+
+    // Função que desenha as tarefas na tela
+    function renderizarTarefas(filtro) {
+      var lista = document.querySelector('#listaTarefas');
+      var mensagem = document.querySelector('#mensagemVazia');
+
+      // Limpa a lista antes de redesenhar
+      lista.innerHTML = '';
+
+      // Filtra as tarefas se houver texto de busca
+      var tarefasFiltradas = tarefas;
+      if (filtro) {
+        tarefasFiltradas = tarefas.filter(function(t) {
+          return t.titulo.toLowerCase().indexOf(filtro.toLowerCase()) !== -1;
+        });
+      }
+
+      // Mostra mensagem se não houver tarefas
+      if (tarefasFiltradas.length === 0) {
+        mensagem.style.display = 'block';
+        return;
+      } else {
+        mensagem.style.display = 'none';
+      }
+
+      // Cria o card de cada tarefa com createElement
+      tarefasFiltradas.forEach(function(tarefa) {
+        // Div principal do card
+        var div = document.createElement('div');
+        div.className = 'tarefa ' + tarefa.prioridade;
+        if (tarefa.status === 'concluida') {
+          div.className += ' concluida';
+        }
+
+        // Título
+        var h3 = document.createElement('h3');
+        h3.textContent = tarefa.titulo;
+
+        // Descrição
+        var pDesc = document.createElement('p');
+        pDesc.textContent = 'Descrição: ' + (tarefa.descricao || 'Sem descrição');
+
+        // Prioridade e data
+        var pInfo = document.createElement('p');
+        pInfo.textContent = 'Prioridade: ' + tarefa.prioridade + ' | Criada em: ' + tarefa.dataCriacao + ' | Status: ' + tarefa.status;
+
+        // Área dos botões
+        var divAcoes = document.createElement('div');
+        divAcoes.className = 'acoes';
+
+        // Botão concluir
+        var btnConcluir = document.createElement('button');
+        btnConcluir.className = 'btn-concluir';
+        btnConcluir.textContent = tarefa.status === 'concluida' ? 'Reabrir' : 'Concluir';
+        btnConcluir.addEventListener('click', function() {
+          alternarStatus(tarefa.id);
+        });
+
+        // Botão editar
+        var btnEditar = document.createElement('button');
+        btnEditar.className = 'btn-editar';
+        btnEditar.textContent = 'Editar';
+        btnEditar.addEventListener('click', function() {
+          editarTarefa(tarefa.id);
+        });
+
+        // Botão excluir
+        var btnExcluir = document.createElement('button');
+        btnExcluir.className = 'btn-excluir';
+        btnExcluir.textContent = 'Excluir';
+        btnExcluir.addEventListener('click', function() {
+          excluirTarefa(tarefa.id);
+        });
+
+        // Monta o card com appendChild
+        divAcoes.appendChild(btnConcluir);
+        divAcoes.appendChild(btnEditar);
+        divAcoes.appendChild(btnExcluir);
+
+        div.appendChild(h3);
+        div.appendChild(pDesc);
+        div.appendChild(pInfo);
+        div.appendChild(divAcoes);
+
+        // Adiciona o card na lista
+        lista.appendChild(div);
+      });
+    }
+
+    // Função para marcar/desmarcar tarefa como concluída
+    function alternarStatus(id) {
+      tarefas = tarefas.map(function(t) {
+        if (t.id === id) {
+          t.status = t.status === 'pendente' ? 'concluida' : 'pendente';
+        }
+        return t;
+      });
+      salvarNoLocalStorage();
+      renderizarTarefas();
+    }
+
+    // Função para editar uma tarefa
+    function editarTarefa(id) {
+      var tarefa = tarefas.find(function(t) { return t.id === id; });
+
+      // Pede novo título e descrição via prompt
+      var novoTitulo = prompt('Novo título:', tarefa.titulo);
+      if (novoTitulo === null) return; // cancelou
+
+      var novaDescricao = prompt('Nova descrição:', tarefa.descricao);
+      if (novaDescricao === null) return;
+
+      // Valida o título
+      if (novoTitulo.trim() === '') {
+        alert('O título não pode ficar vazio.');
+        return;
+      }
+
+      // Atualiza os dados
+      tarefa.titulo    = novoTitulo.trim();
+      tarefa.descricao = novaDescricao.trim();
+
+      salvarNoLocalStorage();
+      renderizarTarefas();
+    }
+
+    // Função para excluir uma tarefa
+    function excluirTarefa(id) {
+      var confirmar = confirm('Deseja excluir esta tarefa?');
+      if (!confirmar) return;
+
+      // Remove a tarefa do array pelo id
+      tarefas = tarefas.filter(function(t) { return t.id !== id; });
+
+      salvarNoLocalStorage();
+      renderizarTarefas();
+    }
+
+    // Função de busca chamada ao digitar no campo
+    function buscarTarefas() {
+      var termo = document.querySelector('#campoBusca').value;
+      renderizarTarefas(termo);
+    }
+  </script>
+
+</body>
+</html>
